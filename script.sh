@@ -19,7 +19,7 @@ aws configure --profile source
 
 # show list of hosted zones
 echo "List of hosted zones in source account:"
-# aws --profile source route53 list-hosted-zones | jq '.HostedZones[].Name + " :" + .HostedZones[].Id'
+aws --profile source route53 list-hosted-zones | jq '.HostedZones[].Name + " :" + .HostedZones[].Id'
 # Fetch records from source zone
 echo -n "Enter source zone id: "
 read source_zone_id
