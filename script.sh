@@ -54,5 +54,5 @@ echo "New zone created with id $new_zone_id"
 echo "Creating records in new zone"
 aws --profile destination route53 change-resource-record-sets --hosted-zone-id $new_zone_id --change-batch file://destination_zone.json
 # checking if the records are created
-echo -n aws --profile destination route53 list-resource-record-sets --hosted-zone-id $new_zone_id | grep grep "ResourceRecords" | wc -l
+echo -n $(aws --profile destination route53 list-resource-record-sets --hosted-zone-id $new_zone_id | grep "ResourceRecords" | wc -l)
 echo " records created in new zone"
