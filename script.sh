@@ -56,3 +56,21 @@ aws --profile destination route53 change-resource-record-sets --hosted-zone-id $
 # checking if the records are created
 echo -n $(aws --profile destination route53 list-resource-record-sets --hosted-zone-id $new_zone_id | grep "ResourceRecords" | wc -l)
 echo " records created in new zone"
+
+# Ask if the user wants to migrate the domain too
+echo -n "Do you want to migrate the domain too? (y/n): "
+read answer
+if [ "$answer" == "y" ]; then
+    aws --profile source configure set region us-east-1
+    aws --profile destination configure set region us-east-1
+    domain_name=$(cat source_zone.json | grep "Name" | cut -d '"' -f 4 | head -n 1)
+    # Get destination account id
+    dest_account_id=$(aws --profile destination sts get-caller-identity --query "Account" --output text)
+    # Request transfer and get password
+    echo "Proposing transfer"
+    aws --profile source route53domains transfer-domain-to-another-aws-account --domain-name $domain_name --account-id $dest_account_id >transfer.json
+    transfer_password=$(cat transfer.json | grep "Password" | cut -d '"' -f 4)
+    # Accept transfer
+    echo "Accepting transfer"
+    aws --profile destination route53domains accept-domain-transfer-from-another-aws-account --domain-name $domain_name --password $transfer_password
+fi
